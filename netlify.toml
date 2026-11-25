@@ -1,0 +1,12 @@
+# The Next.js app lives in the "studybox" subfolder, not at the repository root.
+[build]
+  base = "studybox"
+  # Install the app's dependencies from its lockfile first, so `next` is available
+  # even when the build runs without an automatic install step.
+  command = "npm ci && npm run build"
+  # Relative to the base directory. Netlify's Next.js adapter is applied automatically.
+  publish = ".next"
+
+[build.environment]
+  # Next.js 14 requires Node >= 18.17; pin an LTS release it supports.
+  NODE_VERSION = "22"
