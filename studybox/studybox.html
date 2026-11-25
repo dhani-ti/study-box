@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StudyBox — Organize Your Study, Simplify Your Life.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b1530; --b4:#9b82ff; --b5:#7c5cfc; --b6:#6a47ea; --b7:#5835c7; --b8:#43289a;
+  --l50:#faf8ff; --l100:#f3efff; --l200:#e8e0ff; --l300:#d6caff;
+  --shadow:0 2px 4px rgba(27,21,48,.03),0 14px 36px -14px rgba(106,71,234,.22);
+  --lift:0 4px 8px rgba(27,21,48,.04),0 24px 48px -16px rgba(106,71,234,.30);
+}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Plus Jakarta Sans',Inter,system-ui,sans-serif;color:var(--ink);min-height:100vh;
+  background-color:#f7f4ff;background-attachment:fixed;
+  background-image:radial-gradient(900px 500px at 8% -5%,rgba(187,169,255,.55),transparent 60%),
+    radial-gradient(700px 500px at 100% 10%,rgba(214,202,255,.7),transparent 60%),
+    radial-gradient(800px 600px at 60% 110%,rgba(155,130,255,.28),transparent 60%);
+  -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+svg{flex-shrink:0}
+.app{display:flex;min-height:100vh}
+.glass{background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.75);box-shadow:var(--shadow);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+
+/* Sidebar */
+.side{position:sticky;top:0;height:100vh;width:280px;padding:16px;flex-shrink:0}
+.side .glass{height:100%;border-radius:32px;padding:20px;display:flex;flex-direction:column}
+.logo{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800;letter-spacing:-.02em}
+.logo i{width:44px;height:44px;border-radius:16px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--b4),var(--b7));box-shadow:var(--shadow)}
+.nav{display:flex;flex-direction:column;gap:6px;margin-top:24px;flex:1}
+.nav a{display:flex;align-items:center;gap:12px;height:48px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:600;color:rgba(27,21,48,.6);text-decoration:none;transition:.2s}
+.nav a:hover{background:var(--l100);color:var(--b7)}
+.nav a.active{background:var(--ink);color:#fff;box-shadow:var(--shadow);view-transition-name:nav-pill}
+.me{background:linear-gradient(135deg,var(--l100),rgba(232,224,255,.7));border-radius:24px;padding:12px;display:flex;align-items:center;gap:12px}
+.me .t{min-width:0;flex:1}.me b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.me small{font-size:11px;color:rgba(27,21,48,.5)}
+.mnav{display:none}
+.mhead{display:none}
+
+/* Main */
+main{flex:1;min-width:0;padding:32px 40px 48px}
+#view{max-width:1120px;margin:0 auto;view-transition-name:page}
+.h1{font-size:36px;font-weight:800;letter-spacing:-.025em}
+.sub{color:rgba(27,21,48,.55);font-size:14px;margin-top:4px}
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+.fade{animation:fade .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;font-size:14px;font-weight:700;transition:.15s;background:var(--ink);color:#fff;white-space:nowrap}
+.btn:hover{background:#000}.btn:active{transform:scale(.96)}
+.btn.sm{height:36px;padding:0 16px;font-size:12px}
+.btn.soft{background:var(--l100);color:var(--b7)}.btn.soft:hover{background:var(--l200)}
+.btn.ghost{background:rgba(255,255,255,.8);color:var(--ink);border:1px solid var(--l200)}
+.btn.danger{background:#f43f5e}.btn.danger:hover{background:#e11d48}
+.btn.white{background:rgba(255,255,255,.15);backdrop-filter:blur(8px)}.btn.white:hover{background:rgba(255,255,255,.25)}
+.ib{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:rgba(27,21,48,.5);transition:.15s}
+.ib:hover{background:var(--l100);color:var(--b7)}.ib.red:hover{background:#fff1f2;color:#f43f5e}.ib:active{transform:scale(.88)}
+.chip{height:40px;padding:0 20px;border-radius:999px;font-size:14px;font-weight:600;white-space:nowrap;border:1px solid var(--l200);background:rgba(255,255,255,.7);color:rgba(27,21,48,.7);display:inline-flex;align-items:center;gap:8px;transition:.15s}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:var(--shadow)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:24px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+/* Inputs */
+.in{width:100%;border:1px solid var(--l200);background:rgba(255,255,255,.85);border-radius:16px;padding:12px 16px;font-size:14px;outline:0;transition:.15s}
+.in:focus{border-color:var(--b5);box-shadow:0 0 0 4px rgba(124,92,252,.15)}
+.lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(27,21,48,.5);margin-bottom:6px}
+.search{position:relative;margin-bottom:16px}.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:rgba(27,21,48,.35)}
+.search .in{border-radius:999px;background:#fff;padding-left:44px}
+.field{margin-bottom:16px}
+
+/* Cards / grids */
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{border-radius:28px;padding:20px}
+.hero{position:relative;overflow:hidden;border-radius:36px;padding:40px;color:#fff;background:linear-gradient(135deg,var(--b5),var(--b6) 50%,var(--b8));box-shadow:var(--lift);margin-bottom:24px}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.1)}
+.hero:before{width:288px;height:288px;right:-64px;top:-80px}.hero:after{width:256px;height:256px;right:96px;bottom:-96px;background:rgba(214,202,255,.15)}
+.hero>*{position:relative}
+.hero h1{font-size:48px;font-weight:800;letter-spacing:-.025em;margin:4px 0}
+.hero p{color:rgba(255,255,255,.75)}
+.stat{border-radius:28px;padding:20px;text-decoration:none;color:inherit;transition:.2s;display:block;cursor:pointer}
+.stat:hover{transform:translateY(-4px);box-shadow:var(--lift)}
+.stat .ico{width:48px;height:48px;border-radius:16px;display:grid;place-items:center}
+.stat p{margin-top:20px;font-size:14px;font-weight:600;color:rgba(27,21,48,.55)}
+.stat b{font-size:40px;font-weight:800;letter-spacing:-.02em;display:block;margin-top:4px}
+.two{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;margin-top:24px}
+.col{display:flex;flex-direction:column;gap:24px}
+.sec{border-radius:32px;padding:24px}
+.sec h3{font-size:18px;font-weight:800}
+.sech{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sech .ico{width:40px;height:40px;border-radius:16px;display:grid;place-items:center}
+.row{display:flex;align-items:center;gap:16px;border-radius:24px;padding:12px;background:rgba(255,255,255,.8);box-shadow:0 0 0 1px var(--l100);margin-bottom:10px}
+.date{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;text-align:center;line-height:1;flex-shrink:0;font-weight:800}
+.date small{display:block;font-size:10px;text-transform:uppercase;font-weight:700}
+.empty{border-radius:24px;background:var(--l50);padding:32px 16px;text-align:center;font-size:14px;color:rgba(27,21,48,.55)}
+.es{border-radius:32px;padding:56px 24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.es .ico{width:64px;height:64px;border-radius:24px;display:grid;place-items:center;background:linear-gradient(135deg,var(--l200),var(--l100));color:var(--b6)}
+.es h3{font-size:18px;font-weight:800}.es p{max-width:360px;font-size:14px;color:rgba(27,21,48,.55)}
+.act{display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;transition:.15s}
+.act:hover{background:var(--l50)}
+.act .ico{width:36px;height:36px;border-radius:50%;background:var(--l100);color:var(--b6);display:grid;place-items:center}
+.act p{flex:1;min-width:0;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.act small{color:rgba(27,21,48,.4);font-size:12px;white-space:nowrap}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);row-gap:6px;text-align:center}
+.cal span{font-size:11px;font-weight:700;text-transform:uppercase;color:rgba(27,21,48,.4);padding-bottom:4px}
+.cal div{display:flex;justify-content:center}
+.cal i{position:relative;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:14px;font-weight:600;color:rgba(27,21,48,.7)}
+.cal i.t{background:var(--ink);color:#fff}.cal i.m{background:var(--l200);color:var(--b7)}
+.cal i.m:after{content:"";position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--b6)}
+
+/* Notes / subjects / files / tasks */
+.note{height:208px;cursor:pointer;display:flex;flex-direction:column;transition:.2s}
+.note:hover,.subj:hover{transform:translateY(-4px);box-shadow:var(--lift)}
+.note h3{font-size:18px;font-weight:800;margin-top:8px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.note p{flex:1;font-size:14px;color:rgba(27,21,48,.55);margin-top:4px;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.note p{flex:1;font-size:14px;color:rgba(27,21,48,.55);margin-top:4px;white-space:pre-line;display:-webkit-box;line-clamp:3;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.note small{font-size:12px;color:rgba(27,21,48,.4);font-weight:500}
+.note .ib{opacity:0}.note:hover .ib{opacity:1}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:rgba(255,255,255,.85);box-shadow:0 0 0 1px var(--l200);padding:4px 10px;font-size:11px;font-weight:700;color:rgba(27,21,48,.7)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;min-height:28px}
+.subj{border-radius:28px;padding:20px;cursor:pointer;transition:.2s}
+.subj .av{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;color:#fff;font-size:22px;font-weight:800;box-shadow:var(--shadow)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:var(--l100);padding:6px 12px;font-size:12px;font-weight:700;color:rgba(27,21,48,.6)}
+.file{display:flex;align-items:center;gap:16px;border-radius:28px;padding:16px;margin-bottom:12px}
+.file .fi{width:56px;height:56px;border-radius:16px;background:#fff1f2;color:#f43f5e;display:grid;place-items:center;flex-shrink:0}
+.file .mid{flex:1;min-width:0}.file b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:12px;color:rgba(27,21,48,.5);margin-top:4px}
+.drop{display:flex;align-items:center;gap:16px;border:2px dashed var(--l300);background:rgba(255,255,255,.5);border-radius:32px;padding:24px;margin-bottom:24px;transition:.2s;flex-wrap:wrap}
+.drop.over{border-color:var(--b5);background:rgba(232,224,255,.7)}
+.drop .ico{width:56px;height:56px;border-radius:24px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,var(--b4),var(--b7));box-shadow:var(--shadow)}
+.task{display:flex;align-items:flex-start;gap:16px;border-radius:28px;padding:16px;margin-bottom:12px}
+.task.done{opacity:.65}.task.done b{text-decoration:line-through;text-decoration-color:rgba(27,21,48,.3)}
+.cb{width:32px;height:32px;border-radius:50%;border:2px solid var(--l300);background:#fff;display:grid;place-items:center;color:transparent;flex-shrink:0;transition:.15s;margin-top:2px}
+.cb:hover{border-color:var(--b5)}.task.done .cb{background:var(--b6);border-color:var(--b6);color:#fff}
+.tag{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:700;background:var(--l100);color:var(--b7)}
+.tag.warn{background:#fef3c7;color:#b45309}.tag.late{background:#ffe4e6;color:#e11d48}
+.tc{display:inline-block;margin-left:6px;border-radius:999px;padding:1px 8px;font-size:11px;background:var(--l100);color:var(--b7)}.chip.on .tc{background:rgba(255,255,255,.2);color:#fff}
+.colors{display:flex;flex-wrap:wrap;gap:12px}.colors button{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.colors button.on{box-shadow:0 0 0 4px rgba(124,92,252,.25)}
+
+/* Avatar flower */
+.flower{position:relative;flex-shrink:0}.flower svg{position:absolute;inset:0;width:100%;height:100%}.flower b{position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-weight:800}
+
+/* Modal */
+.ov{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
+.ov .bg{position:absolute;inset:0;background:rgba(27,21,48,.4);backdrop-filter:blur(4px);animation:fade .2s both}
+.md{position:relative;width:100%;max-width:520px;max-height:92vh;display:flex;flex-direction:column;background:#fff;border-radius:32px;box-shadow:var(--lift);animation:pop .25s cubic-bezier(.2,.8,.2,1) both}
+.md.lg{max-width:900px}.md.xl{max-width:1100px}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}}
+.md .hd{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:24px 32px 8px}
+.md .hd h2{font-size:20px;font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.md .bd{padding:8px 32px 24px;overflow-y:auto;min-height:0;flex:1}
+.md .ft{display:flex;justify-content:flex-end;gap:8px;padding:16px 32px;border-top:1px solid var(--l100)}
+.ti{width:100%;border:0;outline:0;background:none;font-size:30px;font-weight:800;letter-spacing:-.02em;margin:8px 0 12px}
+.ta{width:100%;min-height:45vh;resize:none;border:0;outline:0;background:var(--l50);border-radius:24px;padding:20px;font-size:15px;line-height:1.6}
+.ta:focus{box-shadow:0 0 0 4px rgba(124,92,252,.15)}
+.st{font-size:12px;font-weight:700}
+.cf{text-align:center;padding:16px 0}.cf .ico{width:56px;height:56px;border-radius:50%;background:#fff1f2;color:#f43f5e;display:grid;place-items:center;margin:0 auto 12px}
+.cf h3{font-size:18px;font-weight:800;margin-bottom:8px}.cf p{font-size:14px;color:rgba(27,21,48,.6)}
+iframe{width:100%;height:68vh;border:1px solid var(--l200);border-radius:24px;background:var(--l50)}
+
+/* Toast */
+#toasts{position:fixed;top:16px;right:24px;z-index:100;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.toast{pointer-events:auto;display:flex;gap:12px;align-items:center;min-width:240px;max-width:360px;background:rgba(255,255,255,.95);border:1px solid #fff;border-radius:20px;padding:14px 16px;box-shadow:var(--lift);font-size:14px;font-weight:600;animation:pop .25s both}
+.toast.success svg{color:#10b981}.toast.error svg{color:#f43f5e}.toast.info svg{color:var(--b5)}
+.banner{border-radius:20px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;font-size:13px;padding:12px 16px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start}
+
+/* View transitions (morph) */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.01s}
+::view-transition-group(page){animation-duration:.45s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-old(page){animation:vo .22s ease both}
+::view-transition-new(page){animation:vi .45s cubic-bezier(.2,.8,.2,1) both}
+::view-transition-group(nav-pill),::view-transition-group(nav-pill-m){animation-duration:.45s;animation-timing-function:cubic-bezier(.34,1.3,.5,1)}
+@keyframes vo{to{opacity:0;transform:translateY(-8px)}}
+@keyframes vi{from{opacity:0;transform:translateY(14px)}}
+.skeleton{background:var(--l200);border-radius:20px;animation:pulse 1.2s infinite}@keyframes pulse{50%{opacity:.5}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+
+/* Tablet */
+@media(max-width:1024px){.g4{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.side{width:96px}.side .logo span,.nav a span,.me .t{display:none}.nav a{justify-content:center;padding:0}.me{justify-content:center;flex-direction:column}}
+/* Mobile */
+@media(max-width:767px){
+  .side{display:none}
+  main{padding:16px 20px 120px}
+  .mhead{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 0}
+  .mnav{display:flex;position:fixed;left:16px;right:16px;bottom:16px;z-index:40;justify-content:space-between;background:var(--ink);padding:8px;border-radius:999px;box-shadow:var(--lift)}
+  .mnav a{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:rgba(255,255,255,.6)}
+  .mnav a.active{background:#fff;color:var(--ink);view-transition-name:nav-pill-m}
+  .h1{font-size:28px}.hero{padding:28px}.hero h1{font-size:36px}
+  .md{border-radius:32px 32px 0 0;max-width:none}.ov{align-items:flex-end;padding:0}
+  .md .hd,.md .bd,.md .ft{padding-left:20px;padding-right:20px}
+  .note .ib{opacity:1}#toasts{left:16px;right:16px;align-items:stretch}.toast{max-width:none}
+  .g3{grid-template-columns:1fr}.file{flex-wrap:wrap}.file .acts{margin-left:auto}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side"><div class="glass">
+    <div class="logo"><i id="lg"></i><span>StudyBox</span></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="me" id="me"></div>
+  </div></aside>
+  <div style="flex:1;min-width:0">
+    <div class="mhead"><div class="logo"><i id="lg2"></i><span>StudyBox</span></div><div id="meM"></div></div>
+    <main><div id="view"></div></main>
+  </div>
+  <nav class="mnav" id="mnav"></nav>
+</div>
+<div id="toasts"></div>
+<div id="modals"></div>
+
+<script>
+/* ============ Util ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+const P={
+ dash:'<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+ notes:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+ file:'<path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5Z"/><path d="M14 2v6h6"/>',
+ lib:'<path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/>',
+ tasks:'<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+ set:'<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+ plus:'<path d="M5 12h14"/><path d="M12 5v14"/>',
+ trash:'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+ edit:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+ eye:'<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+ dl:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+ up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>',
+ search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>',
+ cl:'<path d="m15 18-6-6 6-6"/>', cr:'<path d="m9 18 6-6-6-6"/>',
+ book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+ cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+ act:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+ alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+ ext:'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+ info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+ party:'<path d="M5.8 11.3 2 22l10.7-3.79"/><path d="M4 3h.01M22 8h.01M15 2h.01M22 20h.01"/><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"/><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17"/><path d="M11 2 9.5 3.5"/><path d="M9 6.5 8 7.5"/>'
+};
+const ic=(n,s=18)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${P[n]}</svg>`;
+const iso=d=>{const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`};
+const pdate=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const daysUntil=s=>{const t=new Date();t.setHours(0,0,0,0);return Math.round((pdate(s)-t)/864e5)};
+const dlabel=s=>{const d=daysUntil(s);return d<0?`Terlambat ${-d} hari`:d===0?'Hari ini':d===1?'Besok':`${d} hari lagi`};
+const fdate=v=>{const d=/^\d{4}-\d{2}-\d{2}$/.test(v)?pdate(v):new Date(v);return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})};
+const ago=t=>{const s=(Date.now()-t)/1000;return s<60?'Baru saja':s<3600?Math.floor(s/60)+' menit lalu':s<86400?Math.floor(s/3600)+' jam lalu':s<604800?Math.floor(s/86400)+' hari lalu':fdate(new Date(t).toISOString())};
+const bytes=n=>{const u=['B','KB','MB','GB'];let i=0;while(n>=1024&&i<3){n/=1024;i++}return n.toFixed(n>=10||i===0?0:1)+' '+u[i]};
+const greet=()=>{const h=new Date().getHours();return h<11?'Selamat pagi':h<15?'Selamat siang':h<19?'Selamat sore':'Selamat malam'};
+const COLORS=['#7c5cfc','#a78bfa','#ec7fc2','#5b9dff','#2fbf9b','#f2a33a','#ef6b6b','#1b1530'];
+
+/* ============ Store ============ */
+function seed(){
+  const t=new Date(),add=n=>iso(new Date(t.getFullYear(),t.getMonth(),t.getDate()+n));
+  const sub=[{id:uid(),name:'Matematika',color:'#7c5cfc'},{id:uid(),name:'Biologi',color:'#2fbf9b'},{id:uid(),name:'Bahasa Inggris',color:'#ec7fc2'}];
+  const now=Date.now();
+  return {user:'Catherine',subjects:sub,
+   notes:[{id:uid(),title:'Rumus turunan dasar',content:'Aturan pangkat: d/dx x^n = n·x^(n-1)\nAturan rantai: (f∘g)\' = f\'(g(x))·g\'(x)\n\nContoh soal dikerjakan minggu depan.',subject_id:sub[0].id,updated:now-36e5},
+          {id:uid(),title:'Fotosintesis',content:'Reaksi terang terjadi di tilakoid, reaksi gelap (siklus Calvin) di stroma.',subject_id:sub[1].id,updated:now-864e5}],
+   tasks:[{id:uid(),title:'Kerjakan latihan Bab 3',description:'Soal nomor 1–20 dari buku paket.',deadline:add(1),subject_id:sub[0].id,status:'pending'},
+          {id:uid(),title:'Laporan praktikum sel',description:'',deadline:add(4),subject_id:sub[1].id,status:'pending'},
+          {id:uid(),title:'Essay: My Dream Job',description:'Minimal 300 kata.',deadline:add(-1),subject_id:sub[2].id,status:'pending'},
+          {id:uid(),title:'Baca modul pengantar',description:'',deadline:add(10),subject_id:null,status:'completed'}],
+   files:[],
+   acts:[{id:uid(),type:'task',msg:'Menambah tugas "Kerjakan latihan Bab 3"',t:now-72e5},{id:uid(),type:'note',msg:'Membuat catatan baru',t:now-864e5}]};
+}
+let S=(()=>{try{return JSON.parse(localStorage.getItem('studybox'))||seed()}catch(e){return seed()}})();
+const save=()=>localStorage.setItem('studybox',JSON.stringify(S));
+const log=(type,msg)=>{S.acts.unshift({id:uid(),type,msg,t:Date.now()});S.acts=S.acts.slice(0,30);save()};
+const subj=id=>S.subjects.find(s=>s.id===id);
+
+/* PDF disimpan di IndexedDB (browser) */
+const idb=new Promise((res,rej)=>{const r=indexedDB.open('studybox',1);r.onupgradeneeded=()=>r.result.createObjectStore('pdf');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+const idbOp=(mode,fn)=>idb.then(db=>new Promise((res,rej)=>{const t=db.transaction('pdf',mode);const rq=fn(t.objectStore('pdf'));t.oncomplete=()=>res(rq&&rq.result);t.onerror=()=>rej(t.error)}));
+
+/* ============ UI helpers ============ */
+function toast(msg,type='success'){
+  const el=document.createElement('div');el.className='toast '+type;
+  el.innerHTML=ic(type==='error'?'alert':type==='info'?'info':'check',20)+`<span>${esc(msg)}</span>`;
+  $('#toasts').appendChild(el);setTimeout(()=>el.remove(),3800);
+}
+function flower(name,size){
+  const l=(name||'U').trim()[0].toUpperCase();
+  const petals=Array.from({length:8},(_,i)=>{const a=i*Math.PI/4;return `<circle cx="${50+27*Math.cos(a)}" cy="${50+27*Math.sin(a)}" r="19" fill="url(#fg)"/>`}).join('');
+  return `<div class="flower" style="width:${size}px;height:${size}px"><svg viewBox="0 0 100 100"><defs><linearGradient id="fg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bba9ff"/><stop offset="1" stop-color="#6a47ea"/></linearGradient></defs>${petals}<circle cx="50" cy="50" r="30" fill="url(#fg)"/></svg><b style="font-size:${size*.38}px">${esc(l)}</b></div>`;
+}
+let modalStack=[];
+function modal({title,body,footer,size='',onClose}){
+  const id=uid(),el=document.createElement('div');el.className='ov';el.dataset.id=id;
+  el.innerHTML=`<div class="bg"></div><div class="md ${size}" role="dialog" aria-modal="true">${title?`<div class="hd"><h2>${esc(title)}</h2><button class="ib" data-close aria-label="Tutup">${ic('x')}</button></div>`:''}<div class="bd">${body}</div>${footer?`<div class="ft">${footer}</div>`:''}</div>`;
+  const close=async()=>{if(onClose&&(await onClose())===false)return;el.remove();modalStack=modalStack.filter(m=>m.id!==id);document.body.style.overflow=modalStack.length?'hidden':''};
+  el.querySelector('.bg').onclick=close;el.querySelectorAll('[data-close]').forEach(b=>b.onclick=close);
+  $('#modals').appendChild(el);document.body.style.overflow='hidden';
+  modalStack.push({id,close,el});return {el,close};
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalStack.length)modalStack[modalStack.length-1].close()});
+function confirmBox(title,message,onYes){
+  const m=modal({body:`<div class="cf"><div class="ico">${ic('alert',28)}</div><h3>${esc(title)}</h3><p>${esc(message)}</p></div>`,
+    footer:`<button class="btn ghost" data-close>Batal</button><button class="btn danger" id="yes">Hapus</button>`});
+  m.el.querySelector('#yes').onclick=async()=>{await onYes();m.close()};
+}
+function subjOptions(sel){return `<option value="">Tanpa subject</option>`+S.subjects.map(s=>`<option value="${s.id}" ${s.id===sel?'selected':''}>${esc(s.name)}</option>`).join('')}
+const badge=id=>{const s=subj(id);return s?`<span class="badge"><span class="dot" style="background:${s.color}"></span>${esc(s.name)}</span>`:''};
+const empty=(icon,title,msg,action='')=>`<div class="glass es fade"><div class="ico">${ic(icon,32)}</div><h3>${esc(title)}</h3><p>${esc(msg)}</p>${action}</div>`;
+const header=(title,sub,btn='')=>`<div class="ph"><div><h1 class="h1">${title}</h1><p class="sub">${sub}</p></div><div>${btn}</div></div>`;
+
+/* ============ Router & transisi morph ============ */
+const NAV=[['dashboard','Dashboard','dash'],['notes','My Notes','notes'],['files','My Files','file'],['subjects','Subjects','lib'],['tasks','My Tasks','tasks'],['settings','Settings','set']];
+const PAGES={dashboard:pDash,notes:pNotes,files:pFiles,subjects:pSubjects,tasks:pTasks,settings:pSettings};
+let route=(location.hash.slice(1)in PAGES)?location.hash.slice(1):'dashboard';
+function chrome(){
+  $('#lg').innerHTML=ic('book',20);$('#lg2').innerHTML=ic('book',20);
+  $('#nav').innerHTML=NAV.map(([k,l,i])=>`<a href="#${k}" data-go="${k}" class="${k===route?'active':''}">${ic(i)}<span>${l}</span></a>`).join('');
+  $('#mnav').innerHTML=NAV.map(([k,l,i])=>`<a href="#${k}" data-go="${k}" aria-label="${l}" class="${k===route?'active':''}">${ic(i,20)}</a>`).join('');
+  $('#me').innerHTML=`${flower(S.user,42)}<div class="t"><b>${esc(S.user)}</b><small>Mode pratinjau</small></div>`;
+  $('#meM').innerHTML=flower(S.user,40);
+}
+function render(){chrome();const v=$('#view');v.innerHTML=`<div class="${document.startViewTransition?'':'fade'}">${PAGES[route]()}</div>`;PAGES[route].after&&PAGES[route].after();window.scrollTo(0,0)}
+function go(r){
+  if(r===route)return;
+  const run=()=>{route=r;history.pushState(null,'','#'+r);render()};
+  if(document.startViewTransition&&!matchMedia('(prefers-reduced-motion: reduce)').matches)document.startViewTransition(run);else run();
+}
+addEventListener('popstate',()=>{const r=location.hash.slice(1);if(r in PAGES){route=r;render()}});
+const rerender=()=>{chrome();const v=$('#view');v.innerHTML=`<div>${PAGES[route]()}</div>`;PAGES[route].after&&PAGES[route].after()};
+
+/* ============ Dashboard ============ */
+let calCur=new Date(new Date().getFullYear(),new Date().getMonth(),1);
+function pDash(){
+  const pend=S.tasks.filter(t=>t.status==='pending');
+  const up=pend.filter(t=>t.deadline&&daysUntil(t.deadline)<=7).sort((a,b)=>a.deadline.localeCompare(b.deadline)).slice(0,5);
+  const marks={};pend.forEach(t=>{if(t.deadline)marks[t.deadline]=(marks[t.deadline]||0)+1});
+  const y=calCur.getFullYear(),m=calCur.getMonth(),off=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate(),today=iso(new Date());
+  let cells='';for(let i=0;i<off;i++)cells+='<div></div>';
+  for(let d=1;d<=n;d++){const s=iso(new Date(y,m,d));cells+=`<div><i class="${s===today?'t':marks[s]?'m':''}" ${marks[s]?`title="${marks[s]} tugas deadline"`:''}>${d}</i></div>`}
+  const stat=(href,icon,label,val,bg,fg)=>`<a class="glass stat" href="#${href}" data-go="${href}"><div class="ico" style="background:${bg};color:${fg}">${ic(icon,24)}</div><p>${label}</p><b>${val}</b></a>`;
+  return `
+  <section class="hero fade"><p style="font-weight:600;font-size:14px">${greet()},</p><h1>Hey, ${esc(S.user)}</h1>
+    <p>${pend.length?`Kamu punya ${pend.length} tugas aktif. Yuk, selesaikan satu per satu.`:'Tidak ada tugas aktif. Saatnya menambah catatan baru!'}</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px">
+      <button class="btn" data-go="notes">${ic('plus')} Tulis catatan</button>
+      <button class="btn white" data-go="files">${ic('up')} Unggah PDF</button>
+      <button class="btn white" data-go="tasks">${ic('tasks')} Tambah tugas</button></div></section>
+  <section class="grid g4 fade">
+    ${stat('notes','notes','Total Catatan',S.notes.length,'#e8e0ff','#5835c7')}
+    ${stat('files','file','Total PDF',S.files.length,'#fce7f3','#db2777')}
+    ${stat('tasks','tasks','Tugas Aktif',pend.length,'#e0f2fe','#0284c7')}
+    ${stat('subjects','lib','Subjects',S.subjects.length,'#d1fae5','#059669')}
+  </section>
+  <section class="two fade"><div class="col">
+    <div class="glass sec"><div class="sech"><div class="ico" style="background:#fef3c7;color:#d97706">${ic('cal',20)}</div><div><h3>Mendekati Deadline</h3><small style="color:rgba(27,21,48,.5)">Tugas jatuh tempo dalam 7 hari</small></div></div>
+      ${up.length?up.map(t=>{const d=daysUntil(t.deadline),dt=pdate(t.deadline),c=d<0?['#ffe4e6','#e11d48']:d<=2?['#fef3c7','#b45309']:['#e8e0ff','#5835c7'];
+        return `<div class="row"><div class="date" style="background:${c[0]};color:${c[1]}"><span><span style="font-size:18px;display:block">${dt.getDate()}</span><small>${dt.toLocaleDateString('id-ID',{month:'short'})}</small></span></div><div style="min-width:0"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.title)}</b><small style="font-weight:700;color:${d<0?'#f43f5e':d<=2?'#d97706':'rgba(27,21,48,.5)'}">${dlabel(t.deadline)}</small></div></div>`}).join('')
+        :`<div class="empty"><div style="color:var(--b5);margin-bottom:8px">${ic('party',32)}</div><b>Tidak ada deadline dekat. Aman!</b></div>`}
+      ${pend.length?`<a href="#tasks" data-go="tasks" style="display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:14px;font-weight:700;color:var(--b6);text-decoration:none">Lihat semua tugas ${ic('cr',16)}</a>`:''}
+    </div>
+    <div class="glass sec"><div class="sech"><div class="ico" style="background:var(--l200);color:var(--b7)">${ic('act',20)}</div><h3>Aktivitas Terbaru</h3></div>
+      ${S.acts.length?S.acts.slice(0,8).map(a=>`<div class="act"><span class="ico">${ic({note:'notes',file:'file',task:'tasks',subject:'lib'}[a.type]||'check',16)}</span><p>${esc(a.msg)}</p><small>${ago(a.t)}</small></div>`).join(''):`<div class="empty">Belum ada aktivitas. Mulai dengan menulis catatan pertamamu!</div>`}
+    </div></div>
+    <div><div class="glass sec"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3>${calCur.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</h3><div><button class="ib" data-a="calPrev" aria-label="Bulan sebelumnya">${ic('cl')}</button><button class="ib" data-a="calNext" aria-label="Bulan berikutnya">${ic('cr')}</button></div></div>
+      <div class="cal">${['Sen','Sel','Rab','Kam','Jum','Sab','Min'].map(d=>`<span>${d}</span>`).join('')}${cells}</div></div></div>
+  </section>`;
+}
+
+/* ============ Notes ============ */
+let nQ='',nF='all';
+function noteListHTML(){
+  const q=nQ.trim().toLowerCase();
+  const list=S.notes.filter(n=>(nF==='all'||(nF==='none'?!n.subject_id:n.subject_id===nF))&&(!q||n.title.toLowerCase().includes(q)||n.content.toLowerCase().includes(q))).sort((a,b)=>b.updated-a.updated);
+  if(!S.notes.length)return empty('notes','Belum ada catatan','Tulis catatan pertamamu. Semua perubahan akan tersimpan otomatis.',`<button class="btn" data-a="newNote">${ic('plus')} Buat catatan</button>`);
+  if(!list.length)return empty('search','Tidak ada hasil','Coba kata kunci atau kategori lain.');
+  return `<div class="grid g3">${list.map(n=>`<article class="glass card note fade" data-a="openNote" data-id="${n.id}"><div class="top">${badge(n.subject_id)}<button class="ib red" data-a="delNote" data-id="${n.id}" aria-label="Hapus catatan">${ic('trash')}</button></div><h3>${esc(n.title)}</h3><p>${esc(n.content||'Catatan kosong')}</p><small>${ago(n.updated)}</small></article>`).join('')}</div>`;
+}
+function pNotes(){
+  return header('My Notes','Semua catatan belajarmu, tersimpan otomatis.',`<button class="btn" data-a="newNote">${ic('plus')} Catatan baru</button>`)+
+  `<div class="search">${ic('search',16)}<input class="in" id="nq" placeholder="Cari judul atau isi catatan…" value="${esc(nQ)}"></div>
+   <div class="chips">${chipsHTML(nF,'nf')}</div><div id="nlist">${noteListHTML()}</div>`;
+}
+pNotes.after=()=>{$('#nq').oninput=e=>{nQ=e.target.value;$('#nlist').innerHTML=noteListHTML()}};
+function chipsHTML(cur,act){return `<button class="chip ${cur==='all'?'on':''}" data-a="${act}" data-v="all">Semua</button>`+S.subjects.map(s=>`<button class="chip ${cur===s.id?'on':''}" data-a="${act}" data-v="${s.id}"><span class="dot" style="background:${s.color}"></span>${esc(s.name)}</button>`).join('')+`<button class="chip ${cur==='none'?'on':''}" data-a="${act}" data-v="none">Tanpa subject</button>`}
+function openNote(id){
+  const n=S.notes.find(x=>x.id===id);if(!n)return;
+  let dirty=false,timer;
+  const m=modal({size:'xl',onClose:async()=>{clearTimeout(timer);flush();rerender()},
+    body:`<div style="display:flex;justify-content:space-between;align-items:center;padding-top:16px"><span class="st" id="nst" style="color:#059669">${ic('check',14)} Tersimpan</span><div style="display:flex;gap:4px;align-items:center"><button class="ib red" id="ndel" aria-label="Hapus catatan">${ic('trash')}</button><button class="btn sm" data-close>Selesai</button></div></div>
+    <input class="ti" id="nt" placeholder="Judul catatan" value="${esc(n.title)}">
+    <div style="max-width:280px;margin-bottom:16px"><select class="in" id="ns">${subjOptions(n.subject_id)}</select></div>
+    <textarea class="ta" id="nc" placeholder="Mulai menulis catatanmu di sini…">${esc(n.content)}</textarea>`});
+  const st=$('#nst'),setSt=(t,c)=>{st.style.color=c;st.innerHTML=t};
+  function flush(){if(!dirty)return;dirty=false;n.title=$('#nt').value.trim()||'Tanpa judul';n.content=$('#nc').value;n.subject_id=$('#ns').value||null;n.updated=Date.now();save();setSt(ic('check',14)+' Tersimpan','#059669')}
+  const touch=()=>{dirty=true;setSt('Mengetik…','rgba(27,21,48,.4)');clearTimeout(timer);timer=setTimeout(()=>{setSt('Menyimpan…','#6a47ea');flush()},800)};
+  ['#nt','#nc'].forEach(s=>$(s).addEventListener('input',touch));$('#ns').onchange=touch;
+  $('#ndel').onclick=()=>confirmBox('Hapus catatan ini?',`"${n.title}" akan dihapus permanen.`,()=>{clearTimeout(timer);dirty=false;S.notes=S.notes.filter(x=>x.id!==id);log('note',`Menghapus catatan "${n.title}"`);save();m.close();toast('Catatan dihapus.');rerender()});
+  $('#nt').focus();
+}
+
+/* ============ Files ============ */
+let fQ='',fF='all',upSubj='';
+function fileListHTML(){
+  const q=fQ.trim().toLowerCase();
+  const list=S.files.filter(f=>(fF==='all'||(fF==='none'?!f.subject_id:f.subject_id===fF))&&(!q||f.name.toLowerCase().includes(q)));
+  if(!S.files.length)return empty('file','Belum ada file PDF','Unggah materi, modul, atau jurnal PDF-mu dan buka kapan saja.',`<button class="btn" data-a="pick">${ic('up')} Upload PDF pertama</button>`);
+  if(!list.length)return empty('search','Tidak ada hasil','Coba kata kunci atau kategori lain.');
+  return list.map(f=>`<div class="glass file fade"><div class="fi">${ic('file',28)}</div><div class="mid"><b>${esc(f.name)}</b><div class="meta"><b style="display:inline;font-weight:700">${bytes(f.size)}</b><span>Diunggah ${fdate(f.created)}</span>${badge(f.subject_id)}</div></div>
+    <div class="acts" style="display:flex"><button class="ib" data-a="prevFile" data-id="${f.id}" aria-label="Preview">${ic('eye')}</button><button class="ib" data-a="dlFile" data-id="${f.id}" aria-label="Download">${ic('dl')}</button><button class="ib" data-a="editFile" data-id="${f.id}" aria-label="Ubah">${ic('edit')}</button><button class="ib red" data-a="delFile" data-id="${f.id}" aria-label="Hapus">${ic('trash')}</button></div></div>`).join('');
+}
+function pFiles(){
+  return header('My Files','Perpustakaan PDF pribadimu. Maksimal 25 MB per file.',`<button class="btn" data-a="pick">${ic('up')} Upload PDF</button>`)+
+  `<input type="file" id="fi" accept="application/pdf,.pdf" multiple hidden>
+   <div class="drop" id="drop"><div class="ico">${ic('up',28)}</div><div style="flex:1;min-width:160px"><b>Tarik &amp; lepas PDF di sini</b><p class="sub" style="margin:0">atau klik tombol Upload PDF. Bisa pilih beberapa file.</p></div>
+   <div style="width:224px;max-width:100%"><label class="lbl">Simpan ke subject</label><select class="in" id="upS">${subjOptions(upSubj)}</select></div></div>
+   <div class="search">${ic('search',16)}<input class="in" id="fq" placeholder="Cari nama file…" value="${esc(fQ)}"></div>
+   <div class="chips">${chipsHTML(fF,'ff')}</div><div id="flist">${fileListHTML()}</div>`;
+}
+pFiles.after=()=>{
+  $('#fq').oninput=e=>{fQ=e.target.value;$('#flist').innerHTML=fileListHTML()};
+  $('#upS').onchange=e=>upSubj=e.target.value;
+  $('#fi').onchange=e=>upload(e.target.files);
+  const d=$('#drop');d.ondragover=e=>{e.preventDefault();d.classList.add('over')};d.ondragleave=()=>d.classList.remove('over');
+  d.ondrop=e=>{e.preventDefault();d.classList.remove('over');upload(e.dataTransfer.files)};
+};
+async function upload(list){
+  let ok=0;
+  for(const f of Array.from(list||[])){
+    if(!(f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'))){toast(`"${f.name}" bukan file PDF.`,'error');continue}
+    if(f.size>25*1024*1024){toast(`"${f.name}" melebihi batas 25 MB.`,'error');continue}
+    const id=uid();
+    try{await idbOp('readwrite',s=>s.put(f,id))}catch(e){toast(`Gagal menyimpan "${f.name}".`,'error');continue}
+    S.files.unshift({id,name:f.name,size:f.size,created:new Date().toISOString(),subject_id:upSubj||null});
+    log('file',`Mengunggah PDF "${f.name}"`);ok++;
+  }
+  save();if(ok)toast(ok===1?'PDF berhasil diunggah.':`${ok} PDF berhasil diunggah.`);rerender();
+}
+async function getBlob(id){return idbOp('readonly',s=>s.get(id))}
+async function dlFile(id){const f=S.files.find(x=>x.id===id),b=await getBlob(id);if(!b)return toast('File tidak ditemukan.','error');const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);toast('Unduhan dimulai.','info')}
+async function prevFile(id){
+  const f=S.files.find(x=>x.id===id),b=await getBlob(id);if(!b)return toast('File tidak ditemukan.','error');
+  const u=URL.createObjectURL(b);
+  modal({title:f.name,size:'xl',onClose:()=>{URL.revokeObjectURL(u)},body:`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap"><button class="btn soft sm" id="pd">${ic('dl',16)} Download</button><a class="btn soft sm" href="${u}" target="_blank" rel="noreferrer" style="text-decoration:none">${ic('ext',16)} Buka di tab baru</a></div><iframe src="${u}" title="${esc(f.name)}"></iframe>`});
+  $('#pd').onclick=()=>dlFile(id);
+}
+function editFile(id){
+  const f=S.files.find(x=>x.id===id);
+  const m=modal({title:'Ubah file',body:`<div class="field" style="padding-top:8px"><label class="lbl">Nama file</label><input class="in" id="efn" value="${esc(f.name)}"></div><div class="field"><label class="lbl">Subject</label><select class="in" id="efs">${subjOptions(f.subject_id)}</select></div>`,footer:`<button class="btn ghost" data-close>Batal</button><button class="btn" id="efsave">Simpan</button>`});
+  $('#efsave').onclick=()=>{const n=$('#efn').value.trim();if(!n)return toast('Nama file tidak boleh kosong.','error');f.name=n;f.subject_id=$('#efs').value||null;save();m.close();toast('File diperbarui.');rerender()};
+}
+
+/* ============ Subjects ============ */
+function pSubjects(){
+  const cnt=id=>({n:S.notes.filter(x=>x.subject_id===id).length,f:S.files.filter(x=>x.subject_id===id).length,t:S.tasks.filter(x=>x.subject_id===id).length});
+  return header('Subjects','Kelompokkan catatan, PDF, dan tugas berdasarkan mata pelajaran.',`<button class="btn" data-a="newSubj">${ic('plus')} Tambah subject</button>`)+
+  (S.subjects.length?`<div class="grid g3">${S.subjects.slice().sort((a,b)=>a.name.localeCompare(b.name)).map(s=>{const c=cnt(s.id);return `<article class="glass subj fade" data-a="viewSubj" data-id="${s.id}"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="av" style="background:${s.color}">${esc(s.name[0].toUpperCase())}</div><div><button class="ib" data-a="editSubj" data-id="${s.id}" aria-label="Ubah subject">${ic('edit')}</button><button class="ib red" data-a="delSubj" data-id="${s.id}" aria-label="Hapus subject">${ic('trash')}</button></div></div><h3 style="font-size:20px;font-weight:800;margin-top:16px">${esc(s.name)}</h3><div class="pills"><span class="pill">${ic('notes',14)} ${c.n} catatan</span><span class="pill">${ic('file',14)} ${c.f} PDF</span><span class="pill">${ic('tasks',14)} ${c.t} tugas</span></div></article>`}).join('')}</div>`
+   :empty('lib','Belum ada subject','Buat subject seperti Matematika atau Biologi, lalu hubungkan catatan dan PDF ke dalamnya.',`<button class="btn" data-a="newSubj">${ic('plus')} Buat subject pertama</button>`));
+}
+function subjForm(id){
+  const s=id?subj(id):null;let color=s?s.color:COLORS[0];
+  const m=modal({title:s?'Ubah subject':'Subject baru',body:`<div class="field" style="padding-top:8px"><label class="lbl">Nama subject</label><input class="in" id="sn" maxlength="40" placeholder="Contoh: Matematika" value="${s?esc(s.name):''}"></div><label class="lbl">Warna</label><div class="colors" id="sc"></div>`,footer:`<button class="btn ghost" data-close>Batal</button><button class="btn" id="ssave">${s?'Simpan':'Tambah'}</button>`});
+  const paint=()=>{$('#sc').innerHTML=COLORS.map(c=>`<button type="button" class="${c===color?'on':''}" data-c="${c}" style="background:${c}" aria-label="Warna ${c}">${c===color?ic('check',16):''}</button>`).join('');$('#sc').querySelectorAll('button').forEach(b=>b.onclick=()=>{color=b.dataset.c;paint()})};paint();
+  const submit=()=>{const name=$('#sn').value.trim();if(!name)return toast('Nama subject tidak boleh kosong.','error');
+    if(S.subjects.some(x=>x.id!==id&&x.name.toLowerCase()===name.toLowerCase()))return toast('Subject dengan nama ini sudah ada.','error');
+    if(s){s.name=name;s.color=color;toast('Subject diperbarui.')}else{S.subjects.push({id:uid(),name,color});log('subject',`Menambah subject "${name}"`);toast('Subject ditambahkan.')}
+    save();m.close();rerender()};
+  $('#ssave').onclick=submit;$('#sn').onkeydown=e=>e.key==='Enter'&&submit();$('#sn').focus();
+}
+function viewSubj(id){
+  const s=subj(id);
+  const sec=(label,ico,items)=>`<h4 style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;margin:16px 0 8px;color:var(--ink)"><span style="color:var(--b6)">${ic(ico,16)}</span>${label}<span class="tc">${items.length}</span></h4>`+(items.length?items.map(x=>`<div style="background:var(--l50);border-radius:16px;padding:10px 16px;font-size:14px;font-weight:600;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(x)}</div>`).join(''):`<div style="background:var(--l50);border-radius:16px;padding:12px 16px;font-size:14px;color:rgba(27,21,48,.5)">Belum ada.</div>`);
+  modal({title:s.name,size:'lg',body:sec('Catatan','notes',S.notes.filter(x=>x.subject_id===id).map(x=>x.title))+sec('File PDF','file',S.files.filter(x=>x.subject_id===id).map(x=>x.name))+sec('Tugas','tasks',S.tasks.filter(x=>x.subject_id===id).map(x=>x.title+(x.status==='completed'?' ✓':'')))});
+}
+
+/* ============ Tasks ============ */
+let tF='all';
+function pTasks(){
+  const c={all:S.tasks.length,pending:S.tasks.filter(t=>t.status==='pending').length,completed:S.tasks.filter(t=>t.status==='completed').length};
+  const list=S.tasks.filter(t=>tF==='all'||t.status===tF).sort((a,b)=>a.status!==b.status?(a.status==='pending'?-1:1):a.deadline&&b.deadline?a.deadline.localeCompare(b.deadline):a.deadline?-1:b.deadline?1:0);
+  return header('My Tasks','Catat tugas dan pantau deadline-nya.',`<button class="btn" data-a="newTask">${ic('plus')} Tambah tugas</button>`)+
+  `<div class="chips">${[['all','Semua'],['pending','Pending'],['completed','Completed']].map(([k,l])=>`<button class="chip ${tF===k?'on':''}" data-a="tf" data-v="${k}">${l}<span class="tc">${c[k]}</span></button>`).join('')}</div>`+
+  (!S.tasks.length?empty('tasks','Belum ada tugas','Tambahkan tugas pertamamu supaya deadline tidak terlewat.',`<button class="btn" data-a="newTask">${ic('plus')} Tambah tugas</button>`)
+  :!list.length?empty('tasks',tF==='pending'?'Semua tugas selesai!':'Belum ada tugas selesai',tF==='pending'?'Tidak ada tugas pending. Waktunya istirahat sejenak.':'Selesaikan tugas dan tandai di sini.')
+  :list.map(t=>{const done=t.status==='completed',d=t.deadline?daysUntil(t.deadline):null;
+    return `<div class="glass task fade ${done?'done':''}"><button class="cb" data-a="toggle" data-id="${t.id}" aria-label="${done?'Tandai pending':'Tandai selesai'}">${ic('check',16)}</button><div style="flex:1;min-width:0"><b>${esc(t.title)}</b>${t.description?`<p class="sub" style="white-space:pre-line">${esc(t.description)}</p>`:''}<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;align-items:center">${t.deadline?`<span class="tag ${done?'':d<0?'late':d<=2?'warn':''}">${ic('cal',14)}${fdate(t.deadline)}${done?'':` · ${dlabel(t.deadline)}`}</span>`:''}${badge(t.subject_id)}</div></div><div style="display:flex"><button class="ib" data-a="editTask" data-id="${t.id}" aria-label="Ubah tugas">${ic('edit')}</button><button class="ib red" data-a="delTask" data-id="${t.id}" aria-label="Hapus tugas">${ic('trash')}</button></div></div>`}).join(''));
+}
+function taskForm(id){
+  const t=id?S.tasks.find(x=>x.id===id):null;let status=t?t.status:'pending';
+  const m=modal({title:t?'Ubah tugas':'Tugas baru',body:`<div class="field" style="padding-top:8px"><label class="lbl">Judul</label><input class="in" id="tt" placeholder="Contoh: Kerjakan laporan praktikum" value="${t?esc(t.title):''}"></div>
+   <div class="field"><label class="lbl">Deskripsi</label><textarea class="in" id="td" style="min-height:96px;resize:none" placeholder="Detail tugas (opsional)">${t?esc(t.description):''}</textarea></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="field"><div><label class="lbl">Deadline</label><input type="date" class="in" id="tdl" value="${t&&t.deadline?t.deadline:''}"></div><div><label class="lbl">Subject</label><select class="in" id="ts">${subjOptions(t&&t.subject_id)}</select></div></div>
+   <label class="lbl">Status</label><div style="display:flex;gap:8px" id="tst"></div>`,footer:`<button class="btn ghost" data-close>Batal</button><button class="btn" id="tsave">${t?'Simpan':'Tambah'}</button>`});
+  const paint=()=>{$('#tst').innerHTML=['pending','completed'].map(s=>`<button type="button" class="chip ${status===s?'on':''}" data-s="${s}">${s==='pending'?'Pending':'Completed'}</button>`).join('');$('#tst').querySelectorAll('button').forEach(b=>b.onclick=()=>{status=b.dataset.s;paint()})};paint();
+  $('#tsave').onclick=()=>{const title=$('#tt').value.trim();if(!title)return toast('Judul tugas tidak boleh kosong.','error');
+    const data={title,description:$('#td').value.trim(),deadline:$('#tdl').value||null,subject_id:$('#ts').value||null,status};
+    if(t){Object.assign(t,data);toast('Tugas diperbarui.')}else{S.tasks.unshift({id:uid(),...data});log('task',`Menambah tugas "${title}"`);toast('Tugas ditambahkan.')}
+    save();m.close();rerender()};
+  $('#tt').focus();
+}
+
+/* ============ Settings ============ */
+function pSettings(){
+  const total=S.files.reduce((a,f)=>a+f.size,0);
+  return header('Settings','Kelola profil dan data pratinjau.')+
+  `<div class="banner">${ic('info',18)}<span><b>Mode pratinjau.</b> Data disimpan hanya di browser ini (localStorage &amp; IndexedDB), tanpa login dan tanpa server. Versi lengkap dengan Supabase ada di proyek Next.js.</span></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+  <section class="glass sec"><div style="display:flex;align-items:center;gap:16px">${flower(S.user,64)}<div><h3 style="font-size:20px">${esc(S.user)}</h3></div></div>
+    <div class="field" style="margin-top:24px"><label class="lbl">Nama tampilan</label><input class="in" id="sname" value="${esc(S.user)}"></div><button class="btn" data-a="saveName">Simpan profil</button></section>
+  <section class="glass sec"><div class="sech"><div class="ico" style="background:var(--l200);color:var(--b7)">${ic('file',20)}</div><h3>Penyimpanan</h3></div><b style="font-size:40px;font-weight:800;letter-spacing:-.02em">${bytes(total)}</b><p class="sub">dipakai oleh ${S.files.length} file PDF</p></section>
+  <section class="glass sec"><h3>Reset data</h3><p class="sub" style="margin:8px 0 24px">Hapus semua data pratinjau dan kembali ke contoh awal.</p><button class="btn danger" data-a="reset">Reset data</button></section>
+  </div>`;
+}
+
+/* ============ Event delegation ============ */
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');
+  if(g&&!e.target.closest('[data-a]')){e.preventDefault();return go(g.dataset.go)}
+  const el=e.target.closest('[data-a]');if(!el)return;
+  const a=el.dataset.a,id=el.dataset.id,v=el.dataset.v;
+  if(el.closest('button[data-a]')&&el.tagName!=='BUTTON'){}
+  const stop=()=>e.stopPropagation();
+  const H={
+    calPrev:()=>{calCur=new Date(calCur.getFullYear(),calCur.getMonth()-1,1);rerender()},
+    calNext:()=>{calCur=new Date(calCur.getFullYear(),calCur.getMonth()+1,1);rerender()},
+    newNote:()=>{const n={id:uid(),title:'Catatan baru',content:'',subject_id:(nF!=='all'&&nF!=='none')?nF:null,updated:Date.now()};S.notes.unshift(n);log('note','Membuat catatan baru');save();rerender();openNote(n.id)},
+    openNote:()=>openNote(id),
+    delNote:()=>{stop();const n=S.notes.find(x=>x.id===id);confirmBox('Hapus catatan ini?',`"${n.title}" akan dihapus permanen dan tidak bisa dikembalikan.`,()=>{S.notes=S.notes.filter(x=>x.id!==id);log('note',`Menghapus catatan "${n.title}"`);save();toast('Catatan dihapus.');rerender()})},
+    nf:()=>{nF=v;rerender()},
+    ff:()=>{fF=v;rerender()},
+    pick:()=>$('#fi').click(),
+    prevFile:()=>prevFile(id),dlFile:()=>dlFile(id),editFile:()=>editFile(id),
+    delFile:()=>{const f=S.files.find(x=>x.id===id);confirmBox('Hapus file ini?',`"${f.name}" akan dihapus permanen dari penyimpanan.`,async()=>{await idbOp('readwrite',s=>s.delete(id));S.files=S.files.filter(x=>x.id!==id);log('file',`Menghapus PDF "${f.name}"`);save();toast('File dihapus.');rerender()})},
+    newSubj:()=>subjForm(),editSubj:()=>{stop();subjForm(id)},viewSubj:()=>viewSubj(id),
+    delSubj:()=>{stop();const s=subj(id);confirmBox('Hapus subject ini?',`Subject "${s.name}" akan dihapus. Catatan, PDF, dan tugas di dalamnya tidak ikut terhapus, hanya menjadi "Tanpa subject".`,()=>{S.subjects=S.subjects.filter(x=>x.id!==id);[...S.notes,...S.files,...S.tasks].forEach(x=>{if(x.subject_id===id)x.subject_id=null});log('subject',`Menghapus subject "${s.name}"`);save();toast('Subject dihapus.');rerender()})},
+    tf:()=>{tF=v;rerender()},
+    newTask:()=>taskForm(),editTask:()=>taskForm(id),
+    toggle:()=>{const t=S.tasks.find(x=>x.id===id);t.status=t.status==='completed'?'pending':'completed';if(t.status==='completed'){log('task',`Menyelesaikan tugas "${t.title}"`);toast('Hebat! Tugas selesai 🎉')}save();rerender()},
+    delTask:()=>{const t=S.tasks.find(x=>x.id===id);confirmBox('Hapus tugas ini?',`"${t.title}" akan dihapus permanen.`,()=>{S.tasks=S.tasks.filter(x=>x.id!==id);log('task',`Menghapus tugas "${t.title}"`);save();toast('Tugas dihapus.');rerender()})},
+    saveName:()=>{const n=$('#sname').value.trim();if(!n)return toast('Nama tidak boleh kosong.','error');S.user=n;save();toast('Profil diperbarui.');rerender()},
+    reset:()=>confirmBox('Reset semua data?','Semua catatan, tugas, subject, dan PDF di browser ini akan dihapus.',async()=>{await idbOp('readwrite',s=>s.clear());localStorage.removeItem('studybox');S=seed();save();toast('Data direset.','info');rerender()})
+  };
+  H[a]&&H[a]();
+});
+
+if(!localStorage.getItem('studybox'))save();
+render();
+</script>
+</body>
+</html>
